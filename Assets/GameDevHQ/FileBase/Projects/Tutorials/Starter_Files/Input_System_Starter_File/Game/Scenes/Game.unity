@@ -6443,7 +6443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d278a65e6d151a44b8e0fd78d0b8f85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 5
+  _speed: 3
   _detonator: {fileID: 2496590969500232579}
   _followCam: {fileID: 1266060213}
   _model: {fileID: 852618543}
@@ -14137,7 +14137,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 7.82e-43, y: 7.1e-44, z: 0, w: -0.0000000035334775}
+  m_BoundingSphereOverride: {x: 0, y: 6e-44, z: 1e-45, w: 1.6792e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0

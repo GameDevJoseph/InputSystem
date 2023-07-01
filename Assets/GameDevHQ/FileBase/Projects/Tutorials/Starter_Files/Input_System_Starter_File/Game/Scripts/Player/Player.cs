@@ -9,6 +9,7 @@ namespace Game.Scripts.Player
     [RequireComponent(typeof(CharacterController))]
     public class Player : MonoBehaviour
     {
+        PlayerInputSystem _input;
         private CharacterController _controller;
         private Animator _anim;
         [SerializeField]
@@ -37,6 +38,8 @@ namespace Game.Scripts.Player
 
         private void Start()
         {
+            _input = new PlayerInputSystem();
+            _input.Player.Enable();
             _controller = GetComponent<CharacterController>();
 
             if (_controller == null)
@@ -57,13 +60,16 @@ namespace Game.Scripts.Player
 
         private void CalcutateMovement()
         {
+            var move = _input.Player.Movement.ReadValue<Vector2>();
             _playerGrounded = _controller.isGrounded;
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+            
+            //Old Input System
+            //float h = Input.GetAxisRaw("Horizontal");
+            //float v = Input.GetAxisRaw("Vertical");
 
-            transform.Rotate(transform.up, h);
+            transform.Rotate(transform.up, move.x);
 
-            var direction = transform.forward * v;
+            var direction = transform.forward * move.y;
             var velocity = direction * _speed;
 
 
