@@ -1,11 +1,14 @@
 using System;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.InputSystem;
 
 namespace Game.Scripts.LiveObjects
 {
     public class Forklift : MonoBehaviour
     {
+        PlayerInputSystem _input;
+
         [SerializeField]
         private GameObject _lift, _steeringWheel, _leftWheel, _rightWheel, _rearWheels;
         [SerializeField]
@@ -19,6 +22,8 @@ namespace Game.Scripts.LiveObjects
         private bool _inDriveMode = false;
         [SerializeField]
         private InteractableZone _interactableZone;
+        bool _isRaisingLift;
+        bool _isLoweringLift;
 
         public static event Action onDriveModeEntered;
         public static event Action onDriveModeExited;
@@ -37,7 +42,34 @@ namespace Game.Scripts.LiveObjects
                 onDriveModeEntered?.Invoke();
                 _driverModel.SetActive(true);
                 _interactableZone.CompleteTask(5);
+                _input = new PlayerInputSystem();
+                _input.Forklift.Enable();
+                _input.Forklift.RaiseLift.performed += RaiseLift_Performed;
+                _input.Forklift.RaiseLift.canceled += RaiseLift_Canceled;
+                _input.Forklift.LowerLift.performed += LowerLift_Performed;
+                _input.Forklift.LowerLift.canceled += LowerLift_Canceled;
+
             }
+        }
+
+        private void LowerLift_Canceled(InputAction.CallbackContext obj)
+        {
+            _isLoweringLift = false;
+        }
+
+        private void LowerLift_Performed(InputAction.CallbackContext obj)
+        {
+            _isLoweringLift = true;
+        }
+
+        private void RaiseLift_Canceled(InputAction.CallbackContext obj)
+        {
+            _isRaisingLift = false;
+        }
+
+        private void RaiseLift_Performed(InputAction.CallbackContext obj)
+        {
+            _isRaisingLift = true;
         }
 
         private void ExitDriveMode()
@@ -63,26 +95,29 @@ namespace Game.Scripts.LiveObjects
 
         private void CalcutateMovement()
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
-            var direction = new Vector3(0, 0, v);
+            var move = _input.Forklift.Movement.ReadValue<Vector2>();
+           
+            //float h = Input.GetAxisRaw("Horizontal");
+            //float v = Input.GetAxisRaw("Vertical");
+
+            var direction = new Vector3(0, 0, move.y);
             var velocity = direction * _speed;
 
             transform.Translate(velocity * Time.deltaTime);
 
-            if (Mathf.Abs(v) > 0)
+            if (Mathf.Abs(move.y) > 0)
             {
                 var tempRot = transform.rotation.eulerAngles;
-                tempRot.y += h * _speed / 2;
+                tempRot.y += move.x * _speed / 2;
                 transform.rotation = Quaternion.Euler(tempRot);
             }
         }
 
         private void LiftControls()
         {
-            if (Input.GetKey(KeyCode.R))
+            if (_isRaisingLift)
                 LiftUpRoutine();
-            else if (Input.GetKey(KeyCode.T))
+            else if (_isLoweringLift)
                 LiftDownRoutine();
         }
 

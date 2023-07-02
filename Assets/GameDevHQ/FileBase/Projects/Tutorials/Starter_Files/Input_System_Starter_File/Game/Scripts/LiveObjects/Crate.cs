@@ -12,6 +12,7 @@ namespace Game.Scripts.LiveObjects
         [SerializeField] private BoxCollider _crateCollider;
         [SerializeField] private InteractableZone _interactableZone;
         private bool _isReadyToBreak = false;
+        
 
         private List<Rigidbody> _brakeOff = new List<Rigidbody>();
 
