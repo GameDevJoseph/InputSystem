@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Game.Scripts.LiveObjects
 {
@@ -11,10 +12,14 @@ namespace Game.Scripts.LiveObjects
         [SerializeField] private Rigidbody[] _pieces;
         [SerializeField] private BoxCollider _crateCollider;
         [SerializeField] private InteractableZone _interactableZone;
+        List<int> _amountPiecesToBreak = new List<int>();
         private bool _isReadyToBreak = false;
-        
+
+
+        PlayerInputSystem _input;
 
         private List<Rigidbody> _brakeOff = new List<Rigidbody>();
+        private bool _ActionHeldDown;
 
         private void OnEnable()
         {
@@ -24,7 +29,7 @@ namespace Game.Scripts.LiveObjects
         private void InteractableZone_onZoneInteractionComplete(InteractableZone zone)
         {
             
-            if (_isReadyToBreak == false && _brakeOff.Count >0)
+            if (_isReadyToBreak == false && _brakeOff.Count > 0)
             {
                 _wholeCrate.SetActive(false);
                 _brokenCrate.SetActive(true);
@@ -35,27 +40,40 @@ namespace Game.Scripts.LiveObjects
             {
                 if (_brakeOff.Count > 0)
                 {
+                    _input = new PlayerInputSystem();
+                    _input.Player.Enable();
+                    _input.Player.Interaction.started += InteractionPunch_Started;
+                    _input.Player.Interaction.canceled += InteractionPunch_Canceled;
                     BreakPart();
                     StartCoroutine(PunchDelay());
+                    StartCoroutine(BreakMultiple());
                 }
-                else if(_brakeOff.Count == 0)
+                else if(_brakeOff.Count <= 0)
                 {
                     _isReadyToBreak = false;
                     _crateCollider.enabled = false;
                     _interactableZone.CompleteTask(6);
+                    _input.Player.Interaction.started -= InteractionPunch_Started;
+                    _input.Player.Interaction.canceled -= InteractionPunch_Canceled;
                     Debug.Log("Completely Busted");
                 }
             }
         }
 
+        private void InteractionPunch_Started(InputAction.CallbackContext context)
+        {
+            _ActionHeldDown = true;
+        }
+        private void InteractionPunch_Canceled(InputAction.CallbackContext context)
+        {
+            _ActionHeldDown = false;
+        }
+
         private void Start()
         {
             _brakeOff.AddRange(_pieces);
-            
         }
-
-
-
+        
         public void BreakPart()
         {
             int rng = Random.Range(0, _brakeOff.Count);
@@ -74,6 +92,21 @@ namespace Game.Scripts.LiveObjects
             }
 
             _interactableZone.ResetAction(6);
+        }
+
+
+        IEnumerator BreakMultiple()
+        {
+            while(_ActionHeldDown)
+            {
+                int rng = Random.Range(0, _brakeOff.Count);
+                _brakeOff[rng].constraints = RigidbodyConstraints.None;
+                _brakeOff[rng].AddForce(new Vector3(1f, 1f, 1f), ForceMode.Force);
+                _brakeOff.Remove(_brakeOff[rng]);
+                yield return new WaitForSeconds(1f);
+            }
+                
+            yield return null;
         }
 
         private void OnDisable()
