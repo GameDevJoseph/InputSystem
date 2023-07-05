@@ -55,6 +55,7 @@ namespace Game.Scripts.LiveObjects
                     _interactableZone.CompleteTask(6);
                     _input.Player.Interaction.started -= InteractionPunch_Started;
                     _input.Player.Interaction.canceled -= InteractionPunch_Canceled;
+                    StopAllCoroutines();;
                     Debug.Log("Completely Busted");
                 }
             }
