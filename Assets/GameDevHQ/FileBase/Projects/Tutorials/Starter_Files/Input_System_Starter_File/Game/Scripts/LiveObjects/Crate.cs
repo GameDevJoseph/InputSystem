@@ -12,7 +12,6 @@ namespace Game.Scripts.LiveObjects
         [SerializeField] private Rigidbody[] _pieces;
         [SerializeField] private BoxCollider _crateCollider;
         [SerializeField] private InteractableZone _interactableZone;
-        List<int> _amountPiecesToBreak = new List<int>();
         private bool _isReadyToBreak = false;
 
 

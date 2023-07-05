@@ -86,22 +86,13 @@ namespace Game.Scripts.LiveObjects
             _input.Player.Enable();
             _input.Player.Interaction.performed += Interaction_Performed;
             _input.Player.Interaction.canceled += Interaction_Canceled;
-            _input.Player.Interaction.started += Interaction_Started;
             _inputString = _input.Player.Interaction.bindings[0].path;
             _inputKey = _inputString.Substring(_inputString.Length - 1);
-
-
         }
 
-        private void Interaction_Started(InputAction.CallbackContext obj)
-        {
-            
-            
-        }
 
         private void Interaction_Canceled(InputAction.CallbackContext obj)
         {
-            int duration = (int)obj.duration;
             _interactionPressed = false;
         }
 
